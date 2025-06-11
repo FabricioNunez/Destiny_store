@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources;
 
+use Filament\Forms\Components\TextInput;
 use App\Filament\Resources\ClienteResource\Pages;
 use App\Filament\Resources\ClienteResource\RelationManagers;
 use App\Models\Cliente;
@@ -20,31 +21,66 @@ class ClienteResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                //
-            ]);
-    }
+{
+    return $form
+        ->schema([
+            TextInput::make('nombre')
+                ->label('Nombre')
+                ->required(),
+
+            TextInput::make('email')
+                ->label('Email')
+                ->email()
+                ->required(),
+
+            TextInput::make('telefono')
+                ->label('Teléfono')
+                ->tel()
+                ->nullable(),
+        ]);
+}
 
     public static function table(Table $table): Table
-    {
-        return $table
-            ->columns([
-                //
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
+{
+    return $table
+        ->columns([
+            Tables\Columns\TextColumn::make('nombre')
+                ->label('Nombre')
+                ->searchable()
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('email')
+                ->label('Email')
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('telefono')
+                ->label('Teléfono')
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('pedidos_count')
+                ->label('Pedidos')
+                ->counts('pedidos')
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('total_gastado')
+                ->label('Total gastado')
+                ->money('ARS')
+                ->sortable()
+                ->state(function ($record) {
+                    return $record->pedidos->sum('total');
+                }),
+        ])
+        ->filters([])
+        ->actions([
+            Tables\Actions\EditAction::make(),
+        ])
+        ->bulkActions([
+            Tables\Actions\BulkActionGroup::make([
+                Tables\Actions\DeleteBulkAction::make(),
+            ]),
+        ]);
+}
+
 
     public static function getRelations(): array
     {

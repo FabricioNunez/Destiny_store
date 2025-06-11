@@ -11,41 +11,49 @@ class CreatePedido extends CreateRecord
 {
     protected static string $resource = PedidoResource::class;
 
-    protected function mutateFormDataBeforeCreate(array $data): array
-    {
-        $total = 0;
+    protected function afterCreate(): void
+{
+    $pedido = $this->record;
 
-        foreach ($data['productos'] as $producto) {
-            $productoModel = Producto::find($producto['producto_id']);
+    // Guardar relación manualmente
+    $productosData = $this->data['productos'] ?? [];
 
-            if (!$productoModel) {
-                Notification::make()
-                    ->title('Producto no encontrado')
-                    ->danger()
-                    ->send();
-                $this->halt();
-            }
+    $sinStock = false;
+    $total = 0;
 
-            // Validar stock suficiente
-            if ($productoModel->stock < $producto['cantidad']) {
-                Notification::make()
-                    ->title("Stock insuficiente para {$productoModel->nombre}")
-                    ->body("Stock disponible: {$productoModel->stock}, solicitado: {$producto['cantidad']}")
-                    ->danger()
-                    ->send();
+    foreach ($productosData as $item) {
+        $producto = Producto::find($item['producto_id']);
+        $cantidad = $item['cantidad'];
 
-                $this->halt();
-            }
+        if (!$producto || $producto->stock < $cantidad) {
+            $sinStock = true;
 
-            // Restar stock
-            $productoModel->stock -= $producto['cantidad'];
-            $productoModel->save();
+            Notification::make()
+                ->title("Stock insuficiente para {$producto->nombre}")
+                ->body("Stock: {$producto->stock}, solicitado: {$cantidad}")
+                ->danger()
+                ->send();
 
-            $total += $productoModel->precio * $producto['cantidad'];
+            break;
         }
 
-        $data['total'] = $total;
+        // Relacionar producto con cantidad
+        $pedido->productos()->attach($producto->id, ['cantidad' => $cantidad]);
 
-        return $data;
+        // Descontar stock
+        $producto->stock -= $cantidad;
+        $producto->save();
+
+        // Sumar al total
+        $total += $producto->precio * $cantidad;
     }
+
+    if ($sinStock) {
+        $pedido->delete(); // Revertir
+        return;
+    }
+
+    // Guardar el total final
+    $pedido->update(['total' => $total]);
+}
 }

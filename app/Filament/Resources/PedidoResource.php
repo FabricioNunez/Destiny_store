@@ -5,6 +5,7 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\PedidoResource\Pages;
 use App\Models\Pedido;
 use App\Models\Producto;
+use App\Filament\Resources\PedidoResource\RelationManagers\PedidoProductosRelationManager;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Forms\Components\Select;
@@ -46,7 +47,6 @@ class PedidoResource extends Resource
                     ->default('pendiente'),
 
                 Repeater::make('productos')
-                    ->relationship()
                     ->label('Productos del pedido')
                     ->schema([
                         Select::make('producto_id')
@@ -86,7 +86,7 @@ class PedidoResource extends Resource
 
     public static function getRelations(): array
     {
-        return [];
+        return [ PedidoProductosRelationManager::class,];
     }
 
     public static function getPages(): array
@@ -97,4 +97,5 @@ class PedidoResource extends Resource
             'edit' => Pages\EditPedido::route('/{record}/edit'),
         ];
     }
+
 }

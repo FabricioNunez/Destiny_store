@@ -2,13 +2,17 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model
 {
-    public function pedidos()
-{
-    return $this->hasMany(Pedido::class);
-}
+    use HasFactory;
 
+    protected $fillable = ['nombre', 'email', 'telefono'];
+
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
 }
