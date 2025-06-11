@@ -75,8 +75,9 @@ class PedidoResource extends Resource
                 TextColumn::make('total')->label('Total')->money('ARS'),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
+                Tables\Actions\ViewAction::make()->label('Ver detalle'),
+                    Tables\Actions\EditAction::make(),
+])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -95,6 +96,7 @@ class PedidoResource extends Resource
             'index' => Pages\ListPedidos::route('/'),
             'create' => Pages\CreatePedido::route('/create'),
             'edit' => Pages\EditPedido::route('/{record}/edit'),
+            'view' => Pages\ViewPedido::route('/{record}'),
         ];
     }
 
