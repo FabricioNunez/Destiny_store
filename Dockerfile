@@ -1,18 +1,14 @@
-# Dockerfile
-
 FROM php:8.2-apache
 
-# Instalar dependencias
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git unzip zip libzip-dev libpng-dev libonig-dev libxml2-dev sqlite3 libsqlite3-dev libpq-dev \
-    && docker-php-ext-install pdo pdo_sqlite zip mbstring xml
-
-
+    && docker-php-ext-install pdo pdo_sqlite zip mbstring xml fileinfo
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar archivos
+# Copiar los archivos del proyecto
 COPY . /var/www/html
 
 WORKDIR /var/www/html
