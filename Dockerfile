@@ -4,8 +4,9 @@ FROM php:8.2-apache
 
 # Instalar dependencias
 RUN apt-get update && apt-get install -y \
-    git unzip zip libzip-dev libpng-dev libonig-dev libxml2-dev sqlite3 libsqlite3-dev && \
-    docker-php-ext-install pdo pdo_sqlite zip
+    git unzip zip libzip-dev libpng-dev libonig-dev libxml2-dev sqlite3 libsqlite3-dev libpq-dev \
+    && docker-php-ext-install pdo pdo_sqlite zip mbstring tokenizer xml
+
 
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
