@@ -1,24 +1,18 @@
 services:
   - type: web
     name: destiny-store
-    env: php
+    env: docker
     plan: free
-    buildCommand: |
-      composer install --no-dev
-      php artisan key:generate
-      php artisan migrate --force
-      php artisan storage:link
-    startCommand: php artisan serve --host=0.0.0.0 --port=$PORT
+    repo: https://github.com/FabricioNunez/Destiny_store
+    branch: main
+    rootDir: .
+    buildFilter:
+      paths:
+        - Dockerfile
     envVars:
       - key: APP_ENV
         value: production
+      - key: APP_DEBUG
+        value: false
       - key: APP_KEY
         generateValue: true
-      - key: DB_CONNECTION
-        value: sqlite
-      - key: DB_DATABASE
-        value: /var/data/database.sqlite
-    disk:
-      name: data
-      mountPath: /var/data
-      sizeGB: 1
