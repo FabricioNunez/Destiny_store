@@ -15,11 +15,15 @@ COPY . /var/www/html
 
 WORKDIR /var/www/html
 
-RUN composer install --no-dev --optimize-autoloader \
-    && cp .env.example .env \
-    && php artisan key:generate \
-    && php artisan migrate --force \
-    && php artisan storage:link
+RUN composer install --no-dev --optimize-autoloader
+
+RUN cp .env.example .env
+
+RUN php artisan key:generate
+
+RUN php artisan migrate --force
+
+RUN php artisan storage:link
 
 EXPOSE 80
 
