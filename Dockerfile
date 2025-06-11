@@ -23,6 +23,9 @@ RUN php artisan migrate --force
 
 RUN php artisan storage:link
 
+RUN composer install --no-dev --optimize-autoloader || cat /var/www/html/storage/logs/laravel.log || true
+
+
 EXPOSE 80
 
 CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=80"]
