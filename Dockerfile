@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
 # Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar los archivos del proyecto
+# Copiar archivos del proyecto
 COPY . /var/www/html
 
 WORKDIR /var/www/html
@@ -22,9 +22,6 @@ RUN php artisan key:generate
 RUN php artisan migrate --force
 
 RUN php artisan storage:link
-
-RUN composer install --no-dev --optimize-autoloader || cat /var/www/html/storage/logs/laravel.log || true
-
 
 EXPOSE 80
 
