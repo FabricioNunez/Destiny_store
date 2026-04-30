@@ -40,11 +40,13 @@ class PedidoResource extends Resource
                 Select::make('estado')
                     ->label('Estado')
                     ->options([
-                        'pendiente' => 'Pendiente',
-                        'pagado' => 'Pagado',
-                        'entregado' => 'Entregado',
+                    'pendiente' => 'Pendiente',
+                    'pagado' => 'Pagado',
+                    'entregado' => 'Entregado',
+                    'cancelado' => 'Cancelado',
                     ])
-                    ->default('pendiente'),
+                    ->default('pendiente')
+                    ->required(),
 
                 Repeater::make('productos')
                     ->label('Productos del pedido')
@@ -71,7 +73,15 @@ class PedidoResource extends Resource
             ->columns([
                 TextColumn::make('cliente.nombre')->label('Cliente'),
                 TextColumn::make('fecha')->dateTime(),
-                TextColumn::make('estado')->label('Estado')->badge(),
+                TextColumn::make('estado')
+                ->badge()
+                ->color(fn (string $state): string => match ($state) {
+                'pendiente' => 'warning',
+                'pagado' => 'success',
+                'entregado' => 'info',
+                'cancelado' => 'danger',
+                default => 'gray',
+             }),
                 TextColumn::make('total')->label('Total')->money('ARS'),
             ])
             ->actions([
