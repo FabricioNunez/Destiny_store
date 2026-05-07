@@ -81,14 +81,38 @@
                             @enderror
                         </div>
 
+                        <div class="mb-4">
+    <label class="form-label">Dirección de entrega</label>
+
+    <textarea
+        name="direccion"
+        class="form-control form-control-lg @error('direccion') is-invalid @enderror"
+        rows="3"
+        placeholder="Ej: Av. Siempre Viva 742, Mendoza"
+        required
+    >{{ old('direccion') }}</textarea>
+
+    @error('direccion')
+        <div class="invalid-feedback">
+            {{ $message }}
+        </div>
+    @enderror
+</div>
+
                         <div class="alert alert-light border">
                             <strong>Compra simulada:</strong>
                             este proyecto no procesa pagos reales. El pedido queda registrado como pendiente.
                         </div>
 
-                        <button type="submit" class="btn btn-success btn-lg w-100">
+                        <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-success btn-lg">
                             Confirmar pedido
-                        </button>
+                                </button>
+
+    <a href="{{ route('carrito.ver') }}" class="btn btn-outline-danger btn-lg">
+        Cancelar compra
+    </a>
+</div>
                     </form>
                 </div>
             </div>

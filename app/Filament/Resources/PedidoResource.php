@@ -3,19 +3,18 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\PedidoResource\Pages;
+use App\Filament\Resources\PedidoResource\RelationManagers\PedidoProductosRelationManager;
 use App\Models\Pedido;
 use App\Models\Producto;
-use App\Filament\Resources\PedidoResource\RelationManagers\PedidoProductosRelationManager;
-use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class PedidoResource extends Resource
 {
@@ -40,10 +39,10 @@ class PedidoResource extends Resource
                 Select::make('estado')
                     ->label('Estado')
                     ->options([
-                    'pendiente' => 'Pendiente',
-                    'pagado' => 'Pagado',
-                    'entregado' => 'Entregado',
-                    'cancelado' => 'Cancelado',
+                        'pendiente' => 'Pendiente',
+                        'pagado' => 'Pagado',
+                        'entregado' => 'Entregado',
+                        'cancelado' => 'Cancelado',
                     ])
                     ->default('pendiente')
                     ->required(),
@@ -63,7 +62,8 @@ class PedidoResource extends Resource
                             ->required(),
                     ])
                     ->columns(2)
-                    ->required(),
+                    ->required()
+                    ->visibleOn('create'),
             ]);
     }
 
@@ -71,23 +71,34 @@ class PedidoResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('cliente.nombre')->label('Cliente'),
-                TextColumn::make('fecha')->dateTime(),
+                TextColumn::make('cliente.nombre')
+                    ->label('Cliente'),
+
+                TextColumn::make('fecha')
+                    ->label('Fecha')
+                    ->dateTime(),
+
                 TextColumn::make('estado')
-                ->badge()
-                ->color(fn (string $state): string => match ($state) {
-                'pendiente' => 'warning',
-                'pagado' => 'success',
-                'entregado' => 'info',
-                'cancelado' => 'danger',
-                default => 'gray',
-             }),
-                TextColumn::make('total')->label('Total')->money('ARS'),
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'pendiente' => 'warning',
+                        'pagado' => 'success',
+                        'entregado' => 'info',
+                        'cancelado' => 'danger',
+                        default => 'gray',
+                    }),
+
+                TextColumn::make('total')
+                    ->label('Total')
+                    ->money('ARS'),
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->label('Ver detalle'),
-                    Tables\Actions\EditAction::make(),
-])
+                Tables\Actions\ViewAction::make()
+                    ->label('Ver detalle'),
+
+                Tables\Actions\EditAction::make(),
+            ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
@@ -97,7 +108,9 @@ class PedidoResource extends Resource
 
     public static function getRelations(): array
     {
-        return [ PedidoProductosRelationManager::class,];
+        return [
+            PedidoProductosRelationManager::class,
+        ];
     }
 
     public static function getPages(): array
@@ -109,5 +122,4 @@ class PedidoResource extends Resource
             'view' => Pages\ViewPedido::route('/{record}'),
         ];
     }
-
 }

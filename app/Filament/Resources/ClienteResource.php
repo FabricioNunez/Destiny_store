@@ -37,6 +37,10 @@ class ClienteResource extends Resource
                 ->label('Teléfono')
                 ->tel()
                 ->nullable(),
+
+                TextInput::make('direccion')
+                ->label('Dirección')
+                ->required(),
         ]);
 }
 

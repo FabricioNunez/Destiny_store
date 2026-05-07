@@ -102,16 +102,25 @@
                             @csrf
 
                             <div class="mb-3">
-                                <label class="form-label text-muted">Cantidad</label>
-                                <input
-                                    type="number"
-                                    name="cantidad"
-                                    value="1"
-                                    min="1"
-                                    max="{{ $producto->stock }}"
-                                    class="form-control"
-                                >
-                            </div>
+
+    <label
+        for="cantidad-{{ $producto->id }}"
+        class="form-label text-muted"
+    >
+        Cantidad
+    </label>
+
+    <input
+        id="cantidad-{{ $producto->id }}"
+        type="number"
+        name="cantidad"
+        value="1"
+        min="1"
+        max="{{ $producto->stock }}"
+        class="form-control"
+    >
+
+</div>
 
                             <button type="submit" class="btn btn-dark w-100">
                                 Agregar al carrito

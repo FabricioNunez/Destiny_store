@@ -153,6 +153,7 @@ public function procesarCheckout(Request $request)
         'nombre' => 'required|string|max:255',
         'email' => 'required|email|max:255',
         'telefono' => 'nullable|string|max:50',
+        'direccion' => ['required', 'string', 'max:255'],
     ]);
 
     $carrito = session()->get('carrito', []);
@@ -170,6 +171,7 @@ public function procesarCheckout(Request $request)
                 [
                     'nombre' => $request->nombre,
                     'telefono' => $request->telefono,
+                    'direccion' => $request->direccion,
                 ]
             );
 

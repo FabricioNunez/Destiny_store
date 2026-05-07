@@ -1,61 +1,196 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Destiny Store
+
+Sistema de tienda online desarrollado con Laravel + FilamentPHP como proyecto de portfolio orientado a e-commerce real.
+
+ Descripción.
+
+Destiny Store es una aplicación web full stack que simula una tienda online completa, incluyendo:
+
+* catálogo de productos
+* carrito de compras
+* checkout
+* gestión de pedidos
+* panel administrativo
+* control de stock
+* autenticación de usuarios
+* generación de PDFs
+* dashboard con métricas y gráficos
+
+El objetivo del proyecto fue construir una aplicación funcional, moderna y escalable, enfocada tanto en experiencia de usuario como en lógica real de negocio.
+
+ Tecnologías utilizadas
+
+Backend
+
+* PHP
+* Laravel 12
+* Eloquent ORM
+* Laravel Breeze
+
+Panel administrativo
+* FilamentPHP v3
+
+Frontend
+
+* Blade
+* Bootstrap 5
+* TailwindCSS (base Laravel/Breeze)
+
+Base de datos
+* MySQL
+
+Librerías adicionales
+* barryvdh/laravel-dompdf
+
+ Funcionalidades principales.
+    Tienda online
+
+* Catálogo público de productos
+* Vista responsive
+* Productos con imagen, precio y stock
+* Carrito de compras dinámico
+* Actualización automática de subtotales
+* Checkout completo
+* Validación de stock
+* Dirección de entrega
+* Cancelación de compra
+* Registro e inicio de sesión personalizados
+
+Gestión de pedidos
+
+* Creación automática de pedidos
+* Relación muchos a muchos entre pedidos y productos
+* Cálculo automático de totales
+Estados del pedido:
+* Pendiente
+* Pagado
+* Entregado
+* Cancelado
+* Generación de comprobante PDF
+* Restauración automática de stock al eliminar pedidos
+
+Panel administrativo
+Desarrollado con FilamentPHP.
+
+Gestión de:
+* Productos
+* Clientes
+* Pedidos
+
+Funcionalidades:
+
+* Dashboard administrativo
+* Métricas de pedidos
+* Tarjetas estadísticas
+* Gráfico de ventas
+* Gestión avanzada de productos por pedido
+* Control de stock automático
+* Protección por roles (is_admin) 
+
+Sistema de autenticación
+El sistema diferencia entre:
+
+Usuario normal
+* acceso a la tienda
+* carrito
+* checkout
+
+Administrador
+* acceso al panel /admin
+Los usuarios normales no pueden acceder al panel administrativo.
+
+Características técnicas destacadas
+
+* Relaciones Eloquent (belongsToMany, pivots)
+* Manejo de stock en tiempo real
+* Validaciones backend
+* Manejo de sesiones
+* Generación de PDFs
+* Arquitectura MVC
+* Panel administrativo moderno
+* Diseño responsive
+* UX personalizada
+* Separación de roles
+
+Capturas
+
+Login
 
 <p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
+  <img src="screenshots/login.png" width="900">
 </p>
 
-## About Laravel
+Register
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+<p align="center">
+  <img src="screenshots/Register.png" width="900">
+</p>
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Catálogo
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+<p align="center">
+  <img src="screenshots/Catalogo.png" width="900">
+</p>
 
-## Learning Laravel
+Carrito
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+<p align="center">
+  <img src="screenshots/Carrito.png" width="900">
+</p>
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+Checkout
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+<p align="center">
+  <img src="screenshots/Checkout.png" width="900">
+</p>
 
-## Laravel Sponsors
+Dashboard
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+<p align="center">
+  <img src="screenshots/Dashboard.png" width="900">
+</p>
 
-### Premium Partners
+Comprobante pedido
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+<p align="center">
+  <img src="screenshots/Comprobante.png" width="900">
+</p>
 
-## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Instalación:
 
-## Code of Conduct
+Clonar repositorio
+git clone https://github.com/FabricioNunez/Destiny_store.git
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+Entrar al proyecto
+cd Destiny_store
 
-## Security Vulnerabilities
+Instalar dependencias
+composer install
+npm install
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+Configurar entorno
+cp .env.example .env
 
-## License
+Generar key
+php artisan key:generate
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Configurar base de datos
+Editar .env
+
+DB_DATABASE=destiny_store
+DB_USERNAME=root
+DB_PASSWORD=
+
+Ejecutar migraciones
+php artisan migrate
+
+Crear enlace de storage
+php artisan storage:link
+
+Iniciar servidor
+php artisan serve
+
+Autor: Fabricio Nuñez
+
+GitHub: FabricioNunez/Destiny_store

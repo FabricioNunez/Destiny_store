@@ -27,6 +27,8 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Destiny Store')
+            ->darkMode(true)
             ->colors([
                 'primary' => Color::Amber,
             ])

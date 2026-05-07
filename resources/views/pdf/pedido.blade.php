@@ -102,6 +102,7 @@
         <p><strong>Nombre:</strong> {{ $pedido->cliente->nombre }}</p>
         <p><strong>Email:</strong> {{ $pedido->cliente->email }}</p>
         <p><strong>Teléfono:</strong> {{ $pedido->cliente->telefono ?? 'No informado' }}</p>
+        <p><strong>Dirección:</strong>{{ $pedido->cliente->direccion }}</p>
     </div>
 
     <div class="section">

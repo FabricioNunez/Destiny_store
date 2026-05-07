@@ -18,13 +18,41 @@
             Destiny Store
         </a>
 
-        <div class="d-flex gap-2">
-            <a href="{{ route('tienda.catalogo') }}" class="btn btn-outline-light btn-sm">
-                Tienda
-            </a>
+        <div class="d-flex gap-2 align-items-center">
 
-            <a href="{{ route('carrito.ver') }}" class="btn btn-warning btn-sm">
-                Carrito
+    @auth
+        <span class="text-white-50 small">
+            {{ Auth::user()->name }}
+        </span>
+
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+
+            <button type="submit" class="btn btn-outline-light btn-sm">
+                Salir
+            </button>
+        </form>
+    @else
+        <a href="{{ route('login') }}" class="btn btn-outline-light btn-sm">
+            Iniciar sesión
+        </a>
+
+        <a href="{{ route('register') }}" class="btn btn-outline-warning btn-sm">
+            Registrarse
+        </a>
+    @endauth
+
+    <a href="{{ route('carrito.ver') }}" class="btn btn-warning btn-sm">
+        Carrito
+        @php
+            $cantidadCarrito = collect(session('carrito', []))->sum('cantidad');
+        @endphp
+
+        @if($cantidadCarrito > 0)
+            <span class="badge bg-dark ms-1">{{ $cantidadCarrito }}</span>
+        @endif
+    </a>
+</div>
                 @php
                     $cantidadCarrito = collect(session('carrito', []))->sum('cantidad');
                 @endphp

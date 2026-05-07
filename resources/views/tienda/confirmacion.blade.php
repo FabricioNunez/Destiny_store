@@ -54,6 +54,11 @@
                             <strong>Teléfono:</strong><br>
                             {{ $pedido->cliente->telefono ?? 'No informado' }}
                         </p>
+
+                        <p class="mb-0">
+                        <strong>Dirección:</strong><br>
+                        {{ $pedido->cliente->direccion }}
+</p>
                     </div>
                 </div>
 
