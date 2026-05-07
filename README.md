@@ -117,7 +117,7 @@ Capturas
 Login
 
 <p align="center">
-  <img src="screenshots/login.png" width="900">
+  <img src="screenshots/Login.png" width="900">
 </p>
 
 Register
