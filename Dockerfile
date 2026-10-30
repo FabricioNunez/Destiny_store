@@ -81,6 +81,9 @@ RUN mkdir -p \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 
+# Configurar límites de subida de archivos en PHP
+COPY uploads.ini /usr/local/etc/php/conf.d/uploads.ini
+
 # Crear enlace simbólico para imágenes públicas
 RUN php artisan storage:link
 
