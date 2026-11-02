@@ -36,16 +36,22 @@ class PedidoResource extends Resource
                     ->required()
                     ->default(now()),
 
-                Select::make('estado')
-                    ->label('Estado')
-                    ->options([
-                        'pendiente' => 'Pendiente',
-                        'pagado' => 'Pagado',
-                        'entregado' => 'Entregado',
-                        'cancelado' => 'Cancelado',
-                    ])
-                    ->default('pendiente')
-                    ->required(),
+                
+Select::make('estado')
+    ->label('Estado')
+    ->options([
+        'pendiente' => 'Pendiente',
+        'pagado' => 'Pagado',
+        'entregado' => 'Entregado',
+        'cancelado' => 'Cancelado',
+    ])
+    ->default('pendiente')
+    ->disabledOn('edit')
+    ->required()
+    ->helperText(
+        'Para cancelar un pedido, utilizá la acción Cancelar pedido.'
+    ),
+
 
                 Repeater::make('productos')
                     ->label('Productos del pedido')
@@ -99,11 +105,7 @@ class PedidoResource extends Resource
 
                 Tables\Actions\EditAction::make(),
             ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+            ->bulkActions([]);
     }
 
     public static function getRelations(): array

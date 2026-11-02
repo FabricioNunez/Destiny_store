@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\PedidoPdfController;
+use App\Http\Controllers\MercadoPagoController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,9 +35,23 @@ Route::delete('/carrito/vaciar', [CartController::class, 'vaciar'])->name('carri
 Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
 
 Route::post('/checkout', [CartController::class, 'procesarCheckout'])->name('checkout.procesar');
+Route::post('/checkout/reintentar', [CartController::class, 'reintentarPago'])
+    ->name('checkout.reintentar');
 
 Route::get('/checkout/confirmacion', [CartController::class, 'confirmacion'])->name('checkout.confirmacion');
 
 Route::get('/pedidos/{pedido}/pdf', [PedidoPdfController::class, 'descargar'])
     ->name('pedidos.pdf');
 require __DIR__.'/auth.php';
+
+Route::get('/mercadopago/success', [MercadoPagoController::class, 'success'])
+    ->name('mercadopago.success');
+
+Route::get('/mercadopago/failure', [MercadoPagoController::class, 'failure'])
+    ->name('mercadopago.failure');
+
+Route::get('/mercadopago/pending', [MercadoPagoController::class, 'pending'])
+    ->name('mercadopago.pending');
+
+Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])
+    ->name('mercadopago.webhook');

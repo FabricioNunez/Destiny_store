@@ -12,6 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+
+        // Configuración del proxy de Render.
         $middleware->trustProxies(
             at: '*',
             headers: Request::HEADER_X_FORWARDED_FOR
@@ -19,6 +21,12 @@ return Application::configure(basePath: dirname(__DIR__))
                 | Request::HEADER_X_FORWARDED_PORT
                 | Request::HEADER_X_FORWARDED_PROTO
         );
+
+        // Permitir notificaciones externas de Mercado Pago.
+        $middleware->validateCsrfTokens(except: [
+            'mercadopago/webhook',
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

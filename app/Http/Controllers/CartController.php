@@ -7,6 +7,7 @@ use App\Models\Cliente;
 use App\Models\Pedido;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Services\MercadoPagoService;
 
 class CartController extends Controller
 {
@@ -147,7 +148,8 @@ class CartController extends Controller
     return view('tienda.checkout', compact('carrito', 'total'));
 }
 
-public function procesarCheckout(Request $request)
+
+public function procesarCheckout(Request $request, MercadoPagoService $mercadoPago)
 {
     $request->validate([
         'nombre' => 'required|string|max:255',
@@ -156,16 +158,40 @@ public function procesarCheckout(Request $request)
         'direccion' => ['required', 'string', 'max:255'],
     ]);
 
+    
+    // Comprobar si esta sesión ya tiene un pedido pendiente.
+    $pedidoAnteriorId = session()->get('ultimo_pedido_id');
+
+    if ($pedidoAnteriorId) {
+        $pedidoAnterior = Pedido::find($pedidoAnteriorId);
+
+        if (
+            $pedidoAnterior
+            && $pedidoAnterior->estado === 'pendiente'
+            && $pedidoAnterior->stock_released_at === null
+        ) {
+            return redirect()
+                ->route('checkout')
+                ->with(
+                    'error',
+                    'Ya tenés un pedido pendiente. '
+                    . 'No se creó otro pedido ni se descontó stock nuevamente.'
+                );
+        }
+    }
+
     $carrito = session()->get('carrito', []);
 
-    if (count($carrito) === 0) {
+    if (empty($carrito)) {
         return redirect()
             ->route('tienda.catalogo')
             ->with('error', 'Tu carrito está vacío.');
     }
 
     try {
-        DB::transaction(function () use ($request, $carrito) {
+        // Crear el pedido y reservar el stock.
+        $pedido = DB::transaction(function () use ($request, $carrito) {
+
             $cliente = Cliente::firstOrCreate(
                 ['email' => $request->email],
                 [
@@ -175,16 +201,32 @@ public function procesarCheckout(Request $request)
                 ]
             );
 
+            $productos = [];
             $total = 0;
 
             foreach ($carrito as $item) {
-                $producto = Producto::findOrFail($item['id']);
+                $cantidad = (int) $item['cantidad'];
 
-                if ($item['cantidad'] > $producto->stock) {
-                    throw new \Exception('No hay stock suficiente para ' . $producto->nombre);
+                if ($cantidad < 1) {
+                    throw new \Exception('Cantidad de producto inválida.');
                 }
 
-                $total += $producto->precio * $item['cantidad'];
+                $producto = Producto::whereKey($item['id'])
+                    ->lockForUpdate()
+                    ->firstOrFail();
+
+                if ($cantidad > $producto->stock) {
+                    throw new \Exception(
+                        'No hay stock suficiente para ' . $producto->nombre
+                    );
+                }
+
+                $productos[] = [
+                    'producto' => $producto,
+                    'cantidad' => $cantidad,
+                ];
+
+                $total += $producto->precio * $cantidad;
             }
 
             $pedido = Pedido::create([
@@ -194,30 +236,68 @@ public function procesarCheckout(Request $request)
                 'total' => $total,
             ]);
 
-            foreach ($carrito as $item) {
-                $producto = Producto::findOrFail($item['id']);
+            foreach ($productos as $item) {
+                $producto = $item['producto'];
+                $cantidad = $item['cantidad'];
 
                 $pedido->productos()->attach($producto->id, [
-                    'cantidad' => $item['cantidad'],
+                    'cantidad' => $cantidad,
                 ]);
 
-                $producto->stock -= $item['cantidad'];
+                $producto->stock -= $cantidad;
                 $producto->save();
             }
 
-            session()->forget('carrito');
-            session()->put('ultimo_pedido_id', $pedido->id);
+            return $pedido;
         });
 
-        return redirect()
-            ->route('checkout.confirmacion')
-            ->with('success', 'Pedido creado correctamente.');
-    } catch (\Exception $e) {
+         // Guardar el pedido antes de comunicarnos con Mercado Pago.
+        session()->put('ultimo_pedido_id', $pedido->id);
+
+        // Intentar crear la preferencia de Mercado Pago.
+        try {
+            $preferencia = $mercadoPago->crearPreferencia($pedido);
+
+            if (empty($preferencia->init_point)) {
+                throw new \RuntimeException(
+                    'Mercado Pago no devolvió una URL de pago.'
+                );
+            }
+
+        } catch (\Throwable $e) {
+            report($e);
+
+            // Si no se pudo iniciar el pago, conservar el pedido
+            // para poder revisar o recuperar la operación.
+            // No eliminarlo automáticamente: Mercado Pago podría
+            // haber recibido la solicitud aunque Laravel no tenga respuesta.
+
+            return redirect()
+                ->route('checkout')
+                ->with(
+                    'error',
+                    'No pudimos confirmar el inicio del pago. No vuelvas a intentarlo todavía; estamos verificando la operación.'
+                );
+        }
+
+        // Guardar el pedido en la sesión.
+        session()->put('ultimo_pedido_id', $pedido->id);
+
+        // Redirigir al comprador a Checkout Pro.
+        return redirect()->away($preferencia->init_point);
+
+    } catch (\Throwable $e) {
+        report($e);
+
         return redirect()
             ->route('checkout')
-            ->with('error', $e->getMessage());
+            ->with(
+                'error',
+                'No pudimos iniciar el pago. Revisá los datos e intentá nuevamente.'
+            );
     }
 }
+
 
 public function confirmacion()
 {
@@ -231,4 +311,95 @@ public function confirmacion()
 
     return view('tienda.confirmacion', compact('pedido'));
 }
+
+
+public function reintentarPago(
+    Request $request,
+    MercadoPagoService $mercadoPago
+) {
+    $pedidoId = session()->get('ultimo_pedido_id');
+
+    if (!$pedidoId) {
+        return redirect()
+            ->route('checkout')
+            ->with('error', 'No encontramos un pedido para reintentar.');
+    }
+
+    $pedido = Pedido::find($pedidoId);
+
+    if (!$pedido) {
+        session()->forget('ultimo_pedido_id');
+
+        return redirect()
+            ->route('checkout')
+            ->with('error', 'El pedido ya no existe.');
+    }
+
+    if (
+        $pedido->estado !== 'pendiente'
+        || $pedido->stock_released_at !== null
+    ) {
+        return redirect()
+            ->route('tienda.catalogo')
+            ->with(
+                'error',
+                'Este pedido ya no está disponible para pagar.'
+            );
+    }
+
+    // Si no hay una preferencia registrada, no crear otra
+    // automáticamente: la operación anterior podría existir.
+    if (empty($pedido->mercadopago_preference_id)) {
+        return redirect()
+            ->route('checkout')
+            ->with(
+                'error',
+                'No pudimos recuperar la operación de pago. '
+                . 'Estamos verificando si Mercado Pago la recibió.'
+            );
+    }
+
+    try {
+        $pagos = $mercadoPago->consultarPagosDePreferencia($pedido);
+
+        foreach ($pagos as $pago) {
+            $estado = $pago['status'] ?? null;
+
+            // Si existe un pago aprobado o en proceso,
+            // no permitir otro intento.
+            if (in_array($estado, [
+                'approved',
+                'pending',
+                'in_process',
+                'authorized',
+            ], true)) {
+                return redirect()
+                    ->route('tienda.catalogo')
+                    ->with(
+                        'success',
+                        'Ya existe una operación de pago para este pedido. '
+                        . 'Estamos esperando su confirmación.'
+                    );
+            }
+        }
+
+        // Recuperar la preferencia original.
+        // No se crea otro pedido ni se descuenta stock.
+        $urlPago = $mercadoPago->recuperarPreferencia($pedido);
+
+        return redirect()->away($urlPago);
+
+    } catch (\Throwable $e) {
+        report($e);
+
+        return redirect()
+            ->route('checkout')
+            ->with(
+                'error',
+                'No pudimos recuperar el pago pendiente. '
+                . 'Intentá nuevamente más tarde.'
+            );
+    }
+}
+
 }

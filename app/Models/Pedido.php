@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\DB;
 
 class Pedido extends Model
 {
@@ -14,6 +15,12 @@ class Pedido extends Model
         'fecha',
         'estado',
         'total',
+        'mercadopago_preference_id',
+        'mercadopago_payment_id',
+    ];
+
+    protected $casts = [
+        'stock_released_at' => 'datetime',
     ];
 
     public function cliente()
@@ -23,17 +30,27 @@ class Pedido extends Model
 
     public function productos()
     {
-        return $this->belongsToMany(Producto::class, 'pedido_productos')
-                    ->withPivot('cantidad')
-                    ->withTimestamps();
+        return $this->belongsToMany(
+            Producto::class,
+            'pedido_productos'
+        )
+            ->withPivot('cantidad')
+            ->withTimestamps();
     }
 
-      protected static function booted()
+    protected static function booted()
     {
         static::deleting(function (Pedido $pedido) {
+
+            // Evitar devolver stock más de una vez.
+            if ($pedido->stock_released_at !== null) {
+                return;
+            }
+
+            // Bloquear los productos mientras se devuelve el stock.
             foreach ($pedido->productos as $producto) {
-                $producto->stock += $producto->pivot->cantidad;
-                $producto->save();
+                Producto::whereKey($producto->id)
+                    ->increment('stock', $producto->pivot->cantidad);
             }
         });
     }
