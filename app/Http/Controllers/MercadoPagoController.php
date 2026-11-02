@@ -46,7 +46,7 @@ class MercadoPagoController extends Controller
 
         $signature = $request->header('x-signature', '');
         $requestId = $request->header('x-request-id', '');
-        $dataId = $request->query('data.id');
+        $dataId = $request->query('data_id') ?? $request->input('data.id');
 
         // Validar los datos necesarios para autenticar el webhook.
         if (!is_string($secret) || $secret === '' ||
