@@ -97,14 +97,15 @@ class MercadoPagoController extends Controller
             $secret
         );
 
-        if (!hash_equals(
-            strtolower($firmaEsperada),
-            strtolower($firmaRecibida)
-        )) {
-            return response()->json([
-                'error' => 'Firma inválida',
-            ], 401);
-        }
+        if (!hash_equals(strtolower($firmaEsperada), strtolower($firmaRecibida))) {
+    Log::warning('Mercado Pago: firma de webhook no coincide', [
+        'data_id' => $dataId,
+        'request_id_presente' => $requestId !== '',
+        'signature_presente' => $signature !== '',
+    ]);
+
+    return response()->json(['error' => 'Firma inválida'], 401);
+    }
 
         // Procesar únicamente eventos de pagos.
         $tipo = $request->input('type')
