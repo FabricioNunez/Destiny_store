@@ -49,16 +49,20 @@ class MercadoPagoController extends Controller
         $dataId = $request->query('data.id');
 
         // Validar los datos necesarios para autenticar el webhook.
-        if (
-            !is_string($secret) || $secret === '' ||
-            !is_string($dataId) || $dataId === '' ||
-            !is_string($signature) || $signature === '' ||
-            !is_string($requestId) || $requestId === ''
-        ) {
-            return response()->json([
-                'error' => 'Notificación no autenticada',
-            ], 401);
-        }
+        if (!is_string($secret) || $secret === '' ||
+    !is_string($dataId) || $dataId === '' ||
+    !is_string($signature) || $signature === '' ||
+    !is_string($requestId) || $requestId === '') {
+
+    Log::warning('Mercado Pago: faltan datos de autenticación', [
+        'secret_configurado' => is_string($secret) && $secret !== '',
+        'data_id_presente' => is_string($dataId) && $dataId !== '',
+        'signature_presente' => is_string($signature) && $signature !== '',
+        'request_id_presente' => is_string($requestId) && $requestId !== '',
+    ]);
+
+    return response()->json(['error' => 'Notificación no autenticada'], 401);
+    }
 
         // Extraer los componentes de x-signature.
         $partes = [];
