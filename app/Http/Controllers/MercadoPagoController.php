@@ -54,13 +54,6 @@ class MercadoPagoController extends Controller
     !is_string($signature) || $signature === '' ||
     !is_string($requestId) || $requestId === '') {
 
-    Log::warning('Mercado Pago: faltan datos de autenticación', [
-        'secret_configurado' => is_string($secret) && $secret !== '',
-        'data_id_presente' => is_string($dataId) && $dataId !== '',
-        'signature_presente' => is_string($signature) && $signature !== '',
-        'request_id_presente' => is_string($requestId) && $requestId !== '',
-    ]);
-
     return response()->json(['error' => 'Notificación no autenticada'], 401);
     }
 
@@ -102,13 +95,7 @@ class MercadoPagoController extends Controller
         );
 
         if (!hash_equals(strtolower($firmaEsperada), strtolower($firmaRecibida))) {
-    Log::warning('Mercado Pago: firma de webhook no coincide', [
-        'data_id' => $dataId,
-        'request_id_presente' => $requestId !== '',
-        'signature_presente' => $signature !== '',
-    ]);
-
-    return response()->json(['error' => 'Firma inválida'], 401);
+        return response()->json(['error' => 'Firma inválida'], 401);
     }
 
         // Procesar únicamente eventos de pagos.
