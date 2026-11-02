@@ -160,25 +160,42 @@ public function procesarCheckout(Request $request, MercadoPagoService $mercadoPa
 
     
     // Comprobar si esta sesión ya tiene un pedido pendiente.
-    $pedidoAnteriorId = session()->get('ultimo_pedido_id');
+    // Comprobar si esta sesión ya tiene un pedido pendiente.
+$pedidoAnteriorId = session()->get('ultimo_pedido_id');
 
-    if ($pedidoAnteriorId) {
-        $pedidoAnterior = Pedido::find($pedidoAnteriorId);
+if ($pedidoAnteriorId) {
+    $pedidoAnterior = Pedido::find($pedidoAnteriorId);
 
-        if (
-            $pedidoAnterior
-            && $pedidoAnterior->estado === 'pendiente'
-            && $pedidoAnterior->stock_released_at === null
-        ) {
+    if (
+        $pedidoAnterior
+        && $pedidoAnterior->estado === 'pendiente'
+        && $pedidoAnterior->stock_released_at === null
+    ) {
+        try {
+            // Reutilizar el pedido existente, sin crear otro
+            // ni volver a descontar stock.
+            $preferencia = $mercadoPago->crearPreferencia($pedidoAnterior);
+
+            if (empty($preferencia->init_point)) {
+                throw new \RuntimeException(
+                    'Mercado Pago no devolvió una URL de pago.'
+                );
+            }
+
+            return redirect()->away($preferencia->init_point);
+
+        } catch (\Throwable $e) {
+            report($e);
+
             return redirect()
                 ->route('checkout')
                 ->with(
                     'error',
-                    'Ya tenés un pedido pendiente. '
-                    . 'No se creó otro pedido ni se descontó stock nuevamente.'
+                    'No pudimos recuperar el pago de tu pedido. Intentá nuevamente más tarde.'
                 );
         }
     }
+}
 
     $carrito = session()->get('carrito', []);
 
