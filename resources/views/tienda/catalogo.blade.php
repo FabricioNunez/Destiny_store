@@ -67,17 +67,17 @@
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden">
 
                     @if($producto->imagen)
-                        <img
-                            src="{{ asset('storage/' . $producto->imagen) }}"
-                            class="card-img-top"
-                            style="height: 240px; object-fit: cover;"
-                            alt="{{ $producto->nombre }}"
-                        >
-                    @else
-                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 240px;">
-                            Sin imagen
-                        </div>
-                    @endif
+        <img
+        src="{{ filter_var($producto->imagen, FILTER_VALIDATE_URL) ? $producto->imagen : asset('storage/' . $producto->imagen) }}"
+        class="card-img-top"
+        style="height: 240px; object-fit: cover;"
+        alt="{{ $producto->nombre }}"
+    >
+        @else
+        <div class="bg-secondary text-white d-flex align-items-center justify-content-center" style="height: 240px;">
+        Sin imagen
+        </div>
+            @endif
 
                     <div class="card-body d-flex flex-column p-4">
                         <div class="mb-2">

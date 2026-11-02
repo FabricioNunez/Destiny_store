@@ -20,6 +20,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Cloudinary\Cloudinary;
+use Illuminate\Support\Facades\Storage;
+
 class ProductoResource extends Resource
 {
     protected static ?string $model = Producto::class;
@@ -51,14 +54,47 @@ class ProductoResource extends Resource
                 ->required(),
 
             FileUpload::make('imagen')
-                ->label('Imagen')
-                ->directory('productos')
-                ->image()
-                ->imagePreviewHeight('150')
-                ->visibility('public')
-                ->nullable(),
+    ->label('Imagen')
+    ->image()
+    ->imagePreviewHeight('150')
+    ->visibility('public')
+    ->nullable()
+    ->saveUploadedFileUsing(function ($file): string {
+        $cloudinary = new Cloudinary([
+            'cloud' => [
+                'cloud_name' => config('services.cloudinary.cloud_name'),
+                'api_key' => config('services.cloudinary.api_key'),
+                'api_secret' => config('services.cloudinary.api_secret'),
+            ],
+            'url' => [
+                'secure' => true,
+            ],
         ]);
-}
+
+        $resultado = $cloudinary->uploadApi()->upload(
+            $file->getRealPath(),
+            [
+                'folder' => 'destiny-store/productos',
+                'resource_type' => 'image',
+            ]
+        );
+
+        return $resultado['secure_url'];
+    })
+    ->getUploadedFileUsing(function (string $file): ?array {
+        if (!filter_var($file, FILTER_VALIDATE_URL)) {
+            return null;
+        }
+
+        return [
+            'name' => basename(parse_url($file, PHP_URL_PATH)),
+            'size' => 0,
+            'type' => 'image/jpeg',
+            'url' => $file,
+        ];
+        }),
+        ]);
+    }
 
     public static function table(Table $table): Table
 {
