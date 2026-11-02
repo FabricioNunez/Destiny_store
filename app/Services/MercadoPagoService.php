@@ -51,11 +51,10 @@ class MercadoPagoService
 
         $preferencia = $client->create([
             'items' => $items,
-            'external_reference' => (string) $pedido->id,
-             'metadata' => [
-            'pedido_id' => (string) $pedido->id,
-                ],
-            'back_urls' => [
+           'external_reference' => (string) $pedido->id,
+            'metadata' => ['pedido_id' => (string) $pedido->id],
+            'notification_url' => rtrim(config('app.url_publica'), '/') . '/mercadopago/webhook',
+        'back_urls' => [
                 'success' => rtrim(config('app.url_publica'), '/')
                     . '/mercadopago/success',
 
