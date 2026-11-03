@@ -64,15 +64,28 @@
                             @enderror
                         </div>
 
-                        <div class="mb-4">
-                            <label class="form-label">Teléfono</label>
-                            <input
-                                type="text"
-                                name="telefono"
-                                value="{{ old('telefono') }}"
-                                class="form-control form-control-lg @error('telefono') is-invalid @enderror"
-                                placeholder="Opcional"
-                            >
+                        <div class="mb-3">
+    <label for="telefono" class="form-label">
+        Teléfono
+    </label>
+
+    <input
+        type="tel"
+        id="telefono"
+        name="telefono"
+        class="form-control"
+        placeholder="Ej: 3704123456"
+        inputmode="numeric"
+        pattern="[0-9]{10}"
+        maxlength="10"
+        value="{{ old('telefono') }}"
+        oninput="this.value = this.value.replace(/\D/g, '').slice(0, 10)"
+    >
+
+    <div class="form-text">
+        Opcional. Ingresá 10 dígitos, sin espacios ni guiones.
+    </div>
+</div>
 
                             @error('telefono')
                                 <div class="invalid-feedback">
@@ -99,17 +112,19 @@
     @enderror
 </div>
 
-                        <div class="alert alert-light border">
-                            <strong>Compra simulada:</strong>
-                            este proyecto no procesa pagos reales. El pedido queda registrado como pendiente.
-                        </div>
+                        <div class="alert alert-info small mb-3">
+    <strong>Pago de demostración:</strong>
+    serás redirigido a Mercado Pago para completar una operación de prueba.
+    No se realizan cobros reales. Una vez aprobado el pago,
+    el estado de tu pedido se actualizará automáticamente.
+</div>
 
                         <div class="d-grid gap-2">
                         <button type="submit" class="btn btn-success btn-lg">
                             Confirmar pedido
                                 </button>
 
-    <a href="{{ route('carrito.ver') }}" class="btn btn-outline-danger btn-lg">
+    <a href="{{ route('carrito.ver') }}" class="btn btn-danger w-100">
         Cancelar compra
     </a>
 </div>
@@ -160,7 +175,7 @@
                         </strong>
                     </div>
 
-                    <a href="{{ route('carrito.ver') }}" class="btn btn-outline-dark w-100 mt-4">
+                    <a href="{{ route('carrito.ver') }}" class="btn btn-primary w-100">
                         Volver al carrito
                     </a>
                 </div>

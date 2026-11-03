@@ -20,15 +20,13 @@
         <div class="auth-wrapper w-100" style="max-width: 460px;">
 
             <div class="text-center mb-4">
-                <a href="/" class="text-decoration-none">
-                    <div class="fw-bold text-warning fs-2">
-                        Destiny Store
-                    </div>
-                    <div class="text-white-50">
-                        Tienda online
-                    </div>
-                </a>
+                <div class="fw-bold text-warning fs-2">
+                    Destiny Store
+                </div>
+            <div class="text-white-50">
+                    Tienda online
             </div>
+        </div>
 
             <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
                 {{ $slot }}

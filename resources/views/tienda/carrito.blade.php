@@ -61,11 +61,10 @@
                                         <div class="d-flex align-items-center gap-3">
                                             @if($item['imagen'])
                                                 <img
-                                                    src="{{ asset('storage/' . $item['imagen']) }}"
+                                                    src="{{ filter_var($item['imagen'], FILTER_VALIDATE_URL) ? $item['imagen'] : asset('storage/' . $item['imagen']) }}"
                                                     style="width: 75px; height: 75px; object-fit: cover;"
                                                     class="rounded-3"
-                                                    alt="{{ $item['nombre'] }}"
-                                                >
+                                                    alt="{{ $item['nombre'] }}">
                                             @else
                                                 <div class="bg-secondary text-white rounded-3 d-flex align-items-center justify-content-center" style="width: 75px; height: 75px;">
                                                     Sin img

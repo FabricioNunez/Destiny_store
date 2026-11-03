@@ -51,16 +51,7 @@
         @if($cantidadCarrito > 0)
             <span class="badge bg-dark ms-1">{{ $cantidadCarrito }}</span>
         @endif
-    </a>
-</div>
-                @php
-                    $cantidadCarrito = collect(session('carrito', []))->sum('cantidad');
-                @endphp
-
-                @if($cantidadCarrito > 0)
-                    <span class="badge bg-dark ms-1">{{ $cantidadCarrito }}</span>
-                @endif
-            </a>
+       </a>
         </div>
     </div>
 </nav>
