@@ -1,196 +1,134 @@
 Destiny Store
 
-Sistema de tienda online desarrollado con Laravel + FilamentPHP como proyecto de portfolio orientado a e-commerce real.
+**E-commerce full stack desarrollado con Laravel 12 y FilamentPHP 3.**
 
- Descripción.
+Aplicación web de comercio electrónico que integra catálogo de productos, carrito de compras, gestión de pedidos, pagos con Mercado Pago y panel administrativo.
 
-Destiny Store es una aplicación web full stack que simula una tienda online completa, incluyendo:
+Desarrollado como proyecto de portafolio, con enfoque en lógica de negocio, integración de APIs y despliegue en la nube.
 
-* catálogo de productos
-* carrito de compras
-* checkout
-* gestión de pedidos
-* panel administrativo
-* control de stock
-* autenticación de usuarios
-* generación de PDFs
-* dashboard con métricas y gráficos
+**[Ver demo online](https://destiny-store.onrender.com)**
 
-El objetivo del proyecto fue construir una aplicación funcional, moderna y escalable, enfocada tanto en experiencia de usuario como en lógica real de negocio.
+> **Demo:** Los pagos utilizan el entorno de pruebas de Mercado Pago. No se realizan cobros reales.
 
- Tecnologías utilizadas
+---
 
-Backend
+Stack tecnológico
 
-* PHP
-* Laravel 12
-* Eloquent ORM
-* Laravel Breeze
+| Área | Tecnologías |
+|---|---|
+| Backend | PHP · Laravel 12 · Eloquent ORM |
+| Frontend | Blade · Bootstrap 5 · Tailwind CSS |
+| Administración | FilamentPHP 3 |
+| Autenticación | Laravel Breeze |
+| Base de datos | MySQL · Aiven |
+| Integraciones | Mercado Pago · Cloudinary · Resend |
+| Infraestructura | Docker · Render · GitHub |
+| Documentos | Laravel DomPDF |
 
-Panel administrativo
-* FilamentPHP v3
+Funcionalidades
 
-Frontend
+**Tienda online**
+- Catálogo responsive con imágenes, precios y stock.
+- Carrito dinámico con actualización de cantidades y totales.
+- Checkout con validación de datos y disponibilidad.
+- Registro, inicio de sesión y recuperación de contraseña.
 
-* Blade
-* Bootstrap 5
-* TailwindCSS (base Laravel/Breeze)
+**Pagos y pedidos**
+- Integración con Mercado Pago Checkout Pro.
+- Webhooks con validación de firma y verificación del pago mediante API.
+- Gestión de estados: pendiente, pagado, entregado y cancelado.
+- Descuento, ajuste y recuperación de stock.
+- Generación de comprobantes PDF.
 
-Base de datos
-* MySQL
+**Administración**
+- Panel Filament con gestión de productos, clientes y pedidos.
+- Dashboard con estadísticas y gráficos de ventas.
+- Gestión de imágenes mediante Cloudinary.
+- Acceso restringido mediante roles.
 
-Librerías adicionales
-* barryvdh/laravel-dompdf
-
- Funcionalidades principales.
-    Tienda online
-
-* Catálogo público de productos
-* Vista responsive
-* Productos con imagen, precio y stock
-* Carrito de compras dinámico
-* Actualización automática de subtotales
-* Checkout completo
-* Validación de stock
-* Dirección de entrega
-* Cancelación de compra
-* Registro e inicio de sesión personalizados
-
-Gestión de pedidos
-
-* Creación automática de pedidos
-* Relación muchos a muchos entre pedidos y productos
-* Cálculo automático de totales
-Estados del pedido:
-* Pendiente
-* Pagado
-* Entregado
-* Cancelado
-* Generación de comprobante PDF
-* Restauración automática de stock al eliminar pedidos
-
-Panel administrativo
-Desarrollado con FilamentPHP.
-
-Gestión de:
-* Productos
-* Clientes
-* Pedidos
-
-Funcionalidades:
-
-* Dashboard administrativo
-* Métricas de pedidos
-* Tarjetas estadísticas
-* Gráfico de ventas
-* Gestión avanzada de productos por pedido
-* Control de stock automático
-* Protección por roles (is_admin) 
-
-Sistema de autenticación
-El sistema diferencia entre:
-
-Usuario normal
-* acceso a la tienda
-* carrito
-* checkout
-
-Administrador
-* acceso al panel /admin
-Los usuarios normales no pueden acceder al panel administrativo.
-
-Características técnicas destacadas
-
-* Relaciones Eloquent (belongsToMany, pivots)
-* Manejo de stock en tiempo real
-* Validaciones backend
-* Manejo de sesiones
-* Generación de PDFs
-* Arquitectura MVC
-* Panel administrativo moderno
-* Diseño responsive
-* UX personalizada
-* Separación de roles
+**Correo electrónico**
+- Integración con Resend para enviar comprobantes PDF.
+- Plantilla HTML personalizada.
+- Envío manual funcional en modo demostración.
 
 Capturas
 
-Login
+Tienda y proceso de compra
 
-<p align="center">
-  <img src="screenshots/Login.png" width="900">
-</p>
+| Catálogo | Carrito |
+|---|---|
+| ![Catálogo](screenshots/Catalogo.png) | ![Carrito](screenshots/Carrito.png) |
 
-Register
+| Checkout | Mercado Pago |
+|---|---|
+| ![Checkout](screenshots/Checkout.png) | **[PENDIENTE: captura de Mercado Pago]** |
 
-<p align="center">
-  <img src="screenshots/Register.png" width="900">
-</p>
+Administración
 
-Catálogo
+![Dashboard](screenshots/Dashboard.png)
 
-<p align="center">
-  <img src="screenshots/Catalogo.png" width="900">
-</p>
+**[PENDIENTE: captura de gestión de pedidos]**
 
-Carrito
+Comprobante PDF
 
-<p align="center">
-  <img src="screenshots/Carrito.png" width="900">
-</p>
+![Comprobante](screenshots/Comprobante.png)
 
-Checkout
+**[PENDIENTE: captura del correo de confirmación con PDF adjunto]**
 
-<p align="center">
-  <img src="screenshots/Checkout.png" width="900">
-</p>
+Arquitectura
 
-Dashboard
+El sistema utiliza el patrón **MVC de Laravel**, relaciones Eloquent y servicios independientes para integraciones externas.
 
-<p align="center">
-  <img src="screenshots/Dashboard.png" width="900">
-</p>
+**Flujo de compra:**
 
-Comprobante pedido
+`Catálogo → Carrito → Checkout → Mercado Pago → Webhook → Verificación API → Pedido pagado`
 
-<p align="center">
-  <img src="screenshots/Comprobante.png" width="900">
-</p>
+El webhook valida la notificación y verifica la transacción con Mercado Pago antes de confirmar el pedido, evitando procesamientos duplicados.
 
+**Infraestructura:** aplicación desplegada en Render mediante Docker, base de datos MySQL en Aiven e imágenes almacenadas en Cloudinary.
 
-Instalación:
+Instalación local
 
-Clonar repositorio
+**Requisitos:** PHP compatible con Laravel 12, Composer, Node.js y MySQL.
+
+```bash
 git clone https://github.com/FabricioNunez/Destiny_store.git
-
-Entrar al proyecto
 cd Destiny_store
 
-Instalar dependencias
 composer install
 npm install
 
-Configurar entorno
 cp .env.example .env
-
-Generar key
 php artisan key:generate
+```
 
-Configurar base de datos
-Editar .env
+Configurar la conexión MySQL y las credenciales necesarias en `.env`.
 
-DB_DATABASE=destiny_store
-DB_USERNAME=root
-DB_PASSWORD=
-
-Ejecutar migraciones
+```bash
 php artisan migrate
-
-Crear enlace de storage
 php artisan storage:link
-
-Iniciar servidor
+npm run build
 php artisan serve
+```
 
-Autor: Fabricio Nuñez
+**Panel administrativo:** `/admin` (requiere usuario administrador).
 
-GitHub: FabricioNunez/Destiny_store
+Las integraciones externas necesitan credenciales propias de Mercado Pago, Cloudinary y Resend.
+
+Demo y pruebas
+
+**https://destiny-store.onrender.com**
+
+La aplicación permite explorar el catálogo, realizar compras de prueba y verificar el procesamiento de pagos mediante Mercado Pago.
+
+**[PENDIENTE: agregar instrucciones breves para utilizar una cuenta compradora de prueba de Mercado Pago.]**
+
+> El envío de comprobantes por Resend se encuentra implementado para ejecución manual. La automatización mediante colas queda como mejora futura.
+
+Autor
+
+**Fabricio Nuñez**
+
+[GitHub](https://github.com/FabricioNunez) · [Repositorio](https://github.com/FabricioNunez/Destiny_store)
+
+*Proyecto desarrollado con fines educativos y de portafolio.*
