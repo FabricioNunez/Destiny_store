@@ -21,6 +21,7 @@ class Pedido extends Model
 
     protected $casts = [
         'stock_released_at' => 'datetime',
+        'comprobante_enviado_at' => 'datetime',
     ];
 
     public function cliente()

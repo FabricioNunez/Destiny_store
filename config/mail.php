@@ -1,16 +1,20 @@
+
 <?php
 
 return [
 
     /*
     |--------------------------------------------------------------------------
-    | Default Mailer
+    | Servicio de correo predeterminado
     |--------------------------------------------------------------------------
     |
-    | This option controls the default mailer that is used to send all email
-    | messages unless another mailer is explicitly specified when sending
-    | the message. All additional mailers can be configured within the
-    | "mailers" array. Examples of each type of mailer are provided.
+    | Esta opción determina qué servicio utilizará Laravel para enviar
+    | correos electrónicos.
+    |
+    | El servicio se selecciona mediante la variable MAIL_MAILER
+    | del archivo .env.
+    |
+    | Para Destiny Store utilizaremos Resend.
     |
     */
 
@@ -18,25 +22,24 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Mailer Configurations
+    | Configuración de los servicios de correo
     |--------------------------------------------------------------------------
     |
-    | Here you may configure all of the mailers used by your application plus
-    | their respective settings. Several examples have been configured for
-    | you and you are free to add your own as your application requires.
+    | Aquí se definen los diferentes servicios disponibles para enviar
+    | correos electrónicos desde la aplicación.
     |
-    | Laravel supports a variety of mail "transport" drivers that can be used
-    | when delivering an email. You may specify which one you're using for
-    | your mailers below. You may also add additional mailers if needed.
+    | Aunque existan varios servicios configurados, Laravel utilizará
+    | únicamente el seleccionado en MAIL_MAILER, salvo que se indique
+    | explícitamente otro.
     |
-    | Supported: "smtp", "sendmail", "mailgun", "ses", "ses-v2",
-    |            "postmark", "resend", "log", "array",
-    |            "failover", "roundrobin"
+    | Servicios compatibles: smtp, sendmail, mailgun, ses, ses-v2,
+    | postmark, resend, log, array, failover y roundrobin.
     |
     */
 
     'mailers' => [
 
+        // Servicio SMTP tradicional.
         'smtp' => [
             'transport' => 'smtp',
             'scheme' => env('MAIL_SCHEME'),
@@ -46,39 +49,57 @@ return [
             'username' => env('MAIL_USERNAME'),
             'password' => env('MAIL_PASSWORD'),
             'timeout' => null,
-            'local_domain' => env('MAIL_EHLO_DOMAIN', parse_url(env('APP_URL', 'http://localhost'), PHP_URL_HOST)),
+            'local_domain' => env(
+                'MAIL_EHLO_DOMAIN',
+                parse_url(
+                    env('APP_URL', 'http://localhost'),
+                    PHP_URL_HOST
+                )
+            ),
         ],
 
+        // Servicio de correo de Amazon.
         'ses' => [
             'transport' => 'ses',
         ],
 
+        // Servicio Postmark.
         'postmark' => [
             'transport' => 'postmark',
+
+            // Configuraciones opcionales:
             // 'message_stream_id' => env('POSTMARK_MESSAGE_STREAM_ID'),
             // 'client' => [
             //     'timeout' => 5,
             // ],
         ],
 
+        // Servicio utilizado por Destiny Store.
         'resend' => [
             'transport' => 'resend',
         ],
 
+        // Envío mediante el programa Sendmail del servidor.
         'sendmail' => [
             'transport' => 'sendmail',
-            'path' => env('MAIL_SENDMAIL_PATH', '/usr/sbin/sendmail -bs -i'),
+            'path' => env(
+                'MAIL_SENDMAIL_PATH',
+                '/usr/sbin/sendmail -bs -i'
+            ),
         ],
 
+        // Guarda los correos en los registros sin enviarlos.
         'log' => [
             'transport' => 'log',
             'channel' => env('MAIL_LOG_CHANNEL'),
         ],
 
+        // Almacena temporalmente los correos en memoria.
         'array' => [
             'transport' => 'array',
         ],
 
+        // Utiliza un servicio alternativo si el principal falla.
         'failover' => [
             'transport' => 'failover',
             'mailers' => [
@@ -88,6 +109,7 @@ return [
             'retry_after' => 60,
         ],
 
+        // Distribuye los envíos entre varios servicios.
         'roundrobin' => [
             'transport' => 'roundrobin',
             'mailers' => [
@@ -101,18 +123,46 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Global "From" Address
+    | Remitente predeterminado
     |--------------------------------------------------------------------------
     |
-    | You may wish for all emails sent by your application to be sent from
-    | the same address. Here you may specify a name and address that is
-    | used globally for all emails that are sent by your application.
+    | Todos los correos enviados por Destiny Store utilizarán esta
+    | dirección y este nombre como remitente, salvo que se especifique
+    | otro remitente para un correo particular.
+    |
+    | Durante las pruebas utilizaremos onboarding@resend.dev.
+    | Cuando tengamos un dominio verificado podremos reemplazarlo
+    | por una dirección propia de Destiny Store.
     |
     */
 
     'from' => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
-        'name' => env('MAIL_FROM_NAME', 'Example'),
+        'name' => env('MAIL_FROM_NAME', 'Destiny Store'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modo demostración de Destiny Store
+    |--------------------------------------------------------------------------
+    |
+    | Permite probar el envío de comprobantes sin utilizar el correo
+    | electrónico real del comprador.
+    |
+    | Si MAIL_DEMO_MODE es true:
+    | Los comprobantes se enviarán a MAIL_DEMO_ADDRESS.
+    |
+    | Si MAIL_DEMO_MODE es false:
+    | Los comprobantes se enviarán al correo del comprador.
+    |
+    | Esta configuración será utilizada por el sistema encargado
+    | de enviar las confirmaciones de compra.
+    |
+    */
+
+    'demo' => [
+        'enabled' => env('MAIL_DEMO_MODE', false),
+        'address' => env('MAIL_DEMO_ADDRESS'),
     ],
 
 ];

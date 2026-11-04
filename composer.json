@@ -12,7 +12,9 @@
         "filament/filament": "^3.3",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
-        "mercadopago/dx-php": "^3.16"
+        "mercadopago/dx-php": "^3.16",
+        "resend/resend-laravel": "^1.7",
+        "resend/resend-php": "^1.18"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
