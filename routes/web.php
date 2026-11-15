@@ -1,14 +1,16 @@
 <?php
 
 use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\PedidoPdfController;
 use App\Http\Controllers\MercadoPagoController;
+use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
+/*
+|--------------------------------------------------------------------------
+| Dashboard y perfil de usuario
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/dashboard', function () {
     return view('dashboard');
@@ -20,29 +22,76 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-Route::get('/', [CartController::class, 'catalogo'])->name('tienda.catalogo');
+/*
+|--------------------------------------------------------------------------
+| Tienda y catálogo
+|--------------------------------------------------------------------------
+*/
 
-Route::get('/carrito', [CartController::class, 'carrito'])->name('carrito.ver');
+Route::get('/', [CartController::class, 'catalogo'])
+    ->name('tienda.catalogo');
 
-Route::post('/carrito/agregar/{producto}', [CartController::class, 'agregar'])->name('carrito.agregar');
+/*
+|--------------------------------------------------------------------------
+| Carrito de compras
+|--------------------------------------------------------------------------
+*/
 
-Route::patch('/carrito/actualizar/{producto}', [CartController::class, 'actualizar'])->name('carrito.actualizar');
+Route::get('/carrito', [CartController::class, 'carrito'])
+    ->name('carrito.ver');
 
-Route::delete('/carrito/eliminar/{producto}', [CartController::class, 'eliminar'])->name('carrito.eliminar');
+Route::post('/carrito/agregar/{producto}', [CartController::class, 'agregar'])
+    ->name('carrito.agregar');
 
-Route::delete('/carrito/vaciar', [CartController::class, 'vaciar'])->name('carrito.vaciar');
+Route::patch('/carrito/actualizar/{producto}', [CartController::class, 'actualizar'])
+    ->name('carrito.actualizar');
 
-Route::get('/checkout', [CartController::class, 'checkout'])->name('checkout');
+Route::delete('/carrito/eliminar/{producto}', [CartController::class, 'eliminar'])
+    ->name('carrito.eliminar');
 
-Route::post('/checkout', [CartController::class, 'procesarCheckout'])->name('checkout.procesar');
+Route::delete('/carrito/vaciar', [CartController::class, 'vaciar'])
+    ->name('carrito.vaciar');
+
+/*
+|--------------------------------------------------------------------------
+| Checkout
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/checkout', [CartController::class, 'checkout'])
+    ->name('checkout');
+
+Route::post('/checkout', [CartController::class, 'procesarCheckout'])
+    ->name('checkout.procesar');
+
 Route::post('/checkout/reintentar', [CartController::class, 'reintentarPago'])
     ->name('checkout.reintentar');
 
-Route::get('/checkout/confirmacion', [CartController::class, 'confirmacion'])->name('checkout.confirmacion');
+Route::get('/checkout/confirmacion', [CartController::class, 'confirmacion'])
+    ->name('checkout.confirmacion');
+
+/*
+|--------------------------------------------------------------------------
+| PDF de pedidos
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/pedidos/{pedido}/pdf', [PedidoPdfController::class, 'descargar'])
     ->name('pedidos.pdf');
+
+/*
+|--------------------------------------------------------------------------
+| Autenticación Laravel Breeze
+|--------------------------------------------------------------------------
+*/
+
 require __DIR__.'/auth.php';
+
+/*
+|--------------------------------------------------------------------------
+| Mercado Pago
+|--------------------------------------------------------------------------
+*/
 
 Route::get('/mercadopago/success', [MercadoPagoController::class, 'success'])
     ->name('mercadopago.success');
@@ -56,7 +105,13 @@ Route::get('/mercadopago/pending', [MercadoPagoController::class, 'pending'])
 Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])
     ->name('mercadopago.webhook');
 
-    Route::get('/diagnostico-sesion', function () {
+/*
+|--------------------------------------------------------------------------
+| Diagnóstico temporal de sesiones
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/diagnostico-sesion', function () {
     return response()->json([
         'session_driver' => config('session.driver'),
         'session_cookie' => config('session.cookie'),
@@ -65,4 +120,32 @@ Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])
         'session_path' => config('session.path'),
         'session_started' => session()->isStarted(),
     ]);
+});
+
+/*
+|--------------------------------------------------------------------------
+| Diagnóstico temporal de cookies
+|--------------------------------------------------------------------------
+| Comprueba si Laravel puede enviar una cookie al navegador.
+| Esta ruta debe eliminarse después de solucionar el error 419.
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/diagnostico-cookie', function () {
+    return response()
+        ->json([
+            'mensaje' => 'Prueba de envio de cookies',
+            'session_started' => session()->isStarted(),
+        ])
+        ->cookie(
+            'prueba_destiny',
+            'funciona',
+            5,
+            '/',
+            null,
+            true,
+            true,
+            false,
+            'lax'
+        );
 });
