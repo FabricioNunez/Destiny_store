@@ -2,14 +2,44 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Pedido;
 use App\Services\MercadoPagoService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class MercadoPagoController extends Controller
 {
+    /*
+    |--------------------------------------------------------------------------
+    | Pago exitoso
+    |--------------------------------------------------------------------------
+    */
+
     public function success(Request $request)
     {
+        // Recuperar el último pedido asociado a esta sesión.
+        $pedidoId = $request->session()->get('ultimo_pedido_id');
+
+        $pedido = $pedidoId
+            ? Pedido::find($pedidoId)
+            : null;
+
+        // Limpiar el carrito solo si el pedido fue confirmado como pagado.
+        if ($pedido && $pedido->estado === 'pagado') {
+            $request->session()->forget([
+                'carrito',
+                'ultimo_pedido_id',
+            ]);
+
+            return redirect()
+                ->route('tienda.catalogo')
+                ->with(
+                    'success',
+                    '¡Tu pago fue aprobado! Gracias por tu compra.'
+                );
+        }
+
+        // El webhook puede tardar en confirmar el pago.
         return redirect()
             ->route('tienda.catalogo')
             ->with(
@@ -17,6 +47,12 @@ class MercadoPagoController extends Controller
                 'Mercado Pago recibió tu operación. Estamos verificando el pago.'
             );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Pago fallido
+    |--------------------------------------------------------------------------
+    */
 
     public function failure(Request $request)
     {
@@ -28,6 +64,12 @@ class MercadoPagoController extends Controller
             );
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Pago pendiente
+    |--------------------------------------------------------------------------
+    */
+
     public function pending(Request $request)
     {
         return redirect()
@@ -37,6 +79,12 @@ class MercadoPagoController extends Controller
                 'Tu pago está pendiente de confirmación.'
             );
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Webhook de Mercado Pago
+    |--------------------------------------------------------------------------
+    */
 
     public function webhook(
         Request $request,
@@ -49,13 +97,16 @@ class MercadoPagoController extends Controller
         $dataId = $request->query('data_id') ?? $request->input('data.id');
 
         // Validar los datos necesarios para autenticar el webhook.
-        if (!is_string($secret) || $secret === '' ||
-    !is_string($dataId) || $dataId === '' ||
-    !is_string($signature) || $signature === '' ||
-    !is_string($requestId) || $requestId === '') {
-
-    return response()->json(['error' => 'Notificación no autenticada'], 401);
-    }
+        if (
+            !is_string($secret) || $secret === '' ||
+            !is_string($dataId) || $dataId === '' ||
+            !is_string($signature) || $signature === '' ||
+            !is_string($requestId) || $requestId === ''
+        ) {
+            return response()->json([
+                'error' => 'Notificación no autenticada',
+            ], 401);
+        }
 
         // Extraer los componentes de x-signature.
         $partes = [];
@@ -94,9 +145,14 @@ class MercadoPagoController extends Controller
             $secret
         );
 
-        if (!hash_equals(strtolower($firmaEsperada), strtolower($firmaRecibida))) {
-        return response()->json(['error' => 'Firma inválida'], 401);
-    }
+        if (!hash_equals(
+            strtolower($firmaEsperada),
+            strtolower($firmaRecibida)
+        )) {
+            return response()->json([
+                'error' => 'Firma inválida',
+            ], 401);
+        }
 
         // Procesar únicamente eventos de pagos.
         $tipo = $request->input('type')
