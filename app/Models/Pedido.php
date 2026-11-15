@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\DB;
 
 class Pedido extends Model
 {
@@ -24,6 +23,12 @@ class Pedido extends Model
         'comprobante_enviado_at' => 'datetime',
     ];
 
+    /*
+    |--------------------------------------------------------------------------
+    | Relaciones
+    |--------------------------------------------------------------------------
+    */
+
     public function cliente()
     {
         return $this->belongsTo(Cliente::class);
@@ -39,20 +44,32 @@ class Pedido extends Model
             ->withTimestamps();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Eliminación de pedidos
+    |--------------------------------------------------------------------------
+    */
+
     protected static function booted()
     {
         static::deleting(function (Pedido $pedido) {
 
-            // Evitar devolver stock más de una vez.
-            if ($pedido->stock_released_at !== null) {
-                return;
+            // Devolver stock solamente si no fue reintegrado antes.
+            if ($pedido->stock_released_at === null) {
+
+                foreach ($pedido->productos as $producto) {
+
+                    Producto::whereKey($producto->id)
+                        ->increment(
+                            'stock',
+                            (int) $producto->pivot->cantidad
+                        );
+                }
             }
 
-            // Bloquear los productos mientras se devuelve el stock.
-            foreach ($pedido->productos as $producto) {
-                Producto::whereKey($producto->id)
-                    ->increment('stock', $producto->pivot->cantidad);
-            }
+            // Eliminar las relaciones del pedido con sus productos.
+            // Esto no elimina los productos del catálogo.
+            $pedido->productos()->detach();
         });
     }
 }

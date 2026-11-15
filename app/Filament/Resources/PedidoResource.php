@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Facades\DB;
 
 class PedidoResource extends Resource
 {
@@ -36,22 +37,20 @@ class PedidoResource extends Resource
                     ->required()
                     ->default(now()),
 
-                
-Select::make('estado')
-    ->label('Estado')
-    ->options([
-        'pendiente' => 'Pendiente',
-        'pagado' => 'Pagado',
-        'entregado' => 'Entregado',
-        'cancelado' => 'Cancelado',
-    ])
-    ->default('pendiente')
-    ->disabledOn('edit')
-    ->required()
-    ->helperText(
-        'Para cancelar un pedido, utilizá la acción Cancelar pedido.'
-    ),
-
+                Select::make('estado')
+                    ->label('Estado')
+                    ->options([
+                        'pendiente' => 'Pendiente',
+                        'pagado' => 'Pagado',
+                        'entregado' => 'Entregado',
+                        'cancelado' => 'Cancelado',
+                    ])
+                    ->default('pendiente')
+                    ->disabledOn('edit')
+                    ->required()
+                    ->helperText(
+                        'Para cancelar un pedido, utilizá la acción Cancelar pedido.'
+                    ),
 
                 Repeater::make('productos')
                     ->label('Productos del pedido')
@@ -104,6 +103,30 @@ Select::make('estado')
                     ->label('Ver detalle'),
 
                 Tables\Actions\EditAction::make(),
+
+                /*
+                |--------------------------------------------------------------------------
+                | Eliminar pedido completo
+                |--------------------------------------------------------------------------
+                */
+
+                Tables\Actions\DeleteAction::make()
+                    ->label('Eliminar pedido')
+                    ->icon('heroicon-o-trash')
+                    ->requiresConfirmation()
+                    ->modalHeading('Eliminar pedido')
+                    ->modalDescription(
+                        'Se eliminará definitivamente el pedido y sus detalles. '
+                        . 'El stock se reintegrará si corresponde. '
+                        . 'Esta acción no realiza reembolsos en Mercado Pago.'
+                    )
+                    ->using(function (Pedido $record): void {
+                        DB::transaction(function () use ($record) {
+                            // El modelo Pedido se encarga de devolver
+                            // el stock y eliminar las relaciones.
+                            $record->delete();
+                        });
+                    }),
             ])
             ->bulkActions([]);
     }
