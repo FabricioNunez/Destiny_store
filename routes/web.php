@@ -55,3 +55,14 @@ Route::get('/mercadopago/pending', [MercadoPagoController::class, 'pending'])
 
 Route::post('/mercadopago/webhook', [MercadoPagoController::class, 'webhook'])
     ->name('mercadopago.webhook');
+
+    Route::get('/diagnostico-sesion', function () {
+    return response()->json([
+        'session_driver' => config('session.driver'),
+        'session_cookie' => config('session.cookie'),
+        'session_domain' => config('session.domain'),
+        'session_secure' => config('session.secure'),
+        'session_path' => config('session.path'),
+        'session_started' => session()->isStarted(),
+    ]);
+});
