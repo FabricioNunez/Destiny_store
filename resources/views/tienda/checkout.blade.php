@@ -1,4 +1,3 @@
-
 @extends('layouts.tienda')
 
 @section('title', 'Checkout - Destiny Store')

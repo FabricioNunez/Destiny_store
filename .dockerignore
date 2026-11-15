@@ -1,4 +1,3 @@
-
 .git
 .env
 .env.*
@@ -10,3 +9,6 @@
 /storage/framework/sessions/*
 /storage/framework/views/*
 /public/hot
+/bootstrap/cache/config.php
+/bootstrap/cache/routes-*.php
+/bootstrap/cache/events.php
